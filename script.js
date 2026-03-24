@@ -1,13 +1,13 @@
 // LMJO 09 - المساعد الذكي للمواد الوزارية
+// المفتاح مضمن مباشرة - لا يحتاج المستخدم لإدخاله
+const API_KEY = "AIzaSyDuqTXw956vY9TG7YwZyjH_r4pKiOvttJE";
+const API_TYPE = "gemini"; // استخدام Gemini API
+
 let currentSubject = 'all';
-let apiKey = localStorage.getItem('lmjo_api_key') || '';
-let apiType = localStorage.getItem('lmjo_api_type') || 'openai';
 
 // تهيئة الصفحة
 document.addEventListener('DOMContentLoaded', () => {
-    loadSettings();
     setupEventListeners();
-    checkApiKey();
 });
 
 function setupEventListeners() {
@@ -28,14 +28,6 @@ function setupEventListeners() {
             e.preventDefault();
             sendMessage();
         }
-    });
-
-    // إعدادات API
-    document.getElementById('settingsBtn').addEventListener('click', openSettings);
-    document.getElementById('saveApiBtn').addEventListener('click', saveApiSettings);
-    document.querySelector('.close').addEventListener('click', closeSettings);
-    window.addEventListener('click', (e) => {
-        if (e.target === document.getElementById('settingsModal')) closeSettings();
     });
 }
 
@@ -74,12 +66,6 @@ async function sendMessage() {
     
     if (!message) return;
     
-    if (!apiKey) {
-        openSettings();
-        document.getElementById('apiWarning').classList.add('show');
-        return;
-    }
-    
     // عرض رسالة المستخدم
     addMessage(message, 'user');
     input.value = '';
@@ -88,50 +74,19 @@ async function sendMessage() {
     const typingId = showTypingIndicator();
     
     try {
-        let response;
-        if (apiType === 'openai') {
-            response = await callOpenAI(message);
-        } else {
-            response = await callGemini(message);
-        }
-        
+        const response = await callGemini(message);
         removeTypingIndicator(typingId);
         addMessage(response, 'bot');
     } catch (error) {
         removeTypingIndicator(typingId);
-        addMessage('❌ عذراً، حدث خطأ: ' + error.message + '\n\nيرجى التحقق من مفتاح API الخاص بك.', 'bot');
+        addMessage('❌ عذراً، حدث خطأ: ' + error.message, 'bot');
     }
-}
-
-async function callOpenAI(message) {
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-            model: 'gpt-3.5-turbo',
-            messages: [
-                { role: 'system', content: getSystemPrompt() },
-                { role: 'user', content: message }
-            ],
-            temperature: 0.7,
-            max_tokens: 1000
-        })
-    });
-    
-    if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error?.message || 'خطأ في الاتصال');
-    }
-    
-    const data = await response.json();
-    return data.choices[0].message.content;
 }
 
 async function callGemini(message) {
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${API_KEY}`;
+    
+    const response = await fetch(url, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -146,7 +101,8 @@ async function callGemini(message) {
     });
     
     if (!response.ok) {
-        throw new Error('خطأ في الاتصال بـ Gemini API');
+        const errorData = await response.json();
+        throw new Error(errorData.error?.message || 'خطأ في الاتصال');
     }
     
     const data = await response.json();
@@ -163,7 +119,6 @@ function addMessage(text, sender) {
 }
 
 function formatText(text) {
-    // تحويل النص إلى HTML مع الحفاظ على الفقرات
     return text.replace(/\n/g, '<br>');
 }
 
@@ -173,7 +128,7 @@ function showTypingIndicator() {
     const typingDiv = document.createElement('div');
     typingDiv.id = id;
     typingDiv.className = 'message bot';
-    typingDiv.innerHTML = '<div class="message-content"><span class="typing-dots">...</span></div>';
+    typingDiv.innerHTML = '<div class="message-content"><span class="typing-dots">⏳ جاري الكتابة...</span></div>';
     messagesContainer.appendChild(typingDiv);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
     return id;
@@ -184,50 +139,12 @@ function removeTypingIndicator(id) {
     if (element) element.remove();
 }
 
-function openSettings() {
-    document.getElementById('apiKey').value = apiKey;
-    document.getElementById('apiType').value = apiType;
-    document.getElementById('settingsModal').style.display = 'flex';
-}
-
-function closeSettings() {
-    document.getElementById('settingsModal').style.display = 'none';
-}
-
-function saveApiSettings() {
-    apiKey = document.getElementById('apiKey').value.trim();
-    apiType = document.getElementById('apiType').value;
-    
-    localStorage.setItem('lmjo_api_key', apiKey);
-    localStorage.setItem('lmjo_api_type', apiType);
-    
-    closeSettings();
-    document.getElementById('apiWarning').classList.remove('show');
-    
-    addMessage('✅ تم حفظ إعدادات API بنجاح! يمكنك الآن البدء بالأسئلة.', 'bot');
-}
-
-function loadSettings() {
-    apiKey = localStorage.getItem('lmjo_api_key') || '';
-    apiType = localStorage.getItem('lmjo_api_type') || 'openai';
-}
-
-function checkApiKey() {
-    if (!apiKey) {
-        document.getElementById('apiWarning').classList.add('show');
-    }
-}
-
 // إضافة CSS للـ typing indicator
 const style = document.createElement('style');
 style.textContent = `
     .typing-dots {
-        display: inline-block;
-        animation: typing 1.4s infinite;
-    }
-    @keyframes typing {
-        0%, 60%, 100% { opacity: 0.3; content: '.'; }
-        30% { opacity: 1; content: '..'; }
+        color: #6c757d;
+        font-style: italic;
     }
 `;
 document.head.appendChild(style);
