@@ -39,33 +39,13 @@
             </div>
 
             <div class="chat-input-area">
-                <div class="api-key-warning" id="apiWarning">
-                    ⚠️ يرجى إدخال مفتاح API في الإعدادات أولاً
-                </div>
                 <div class="input-group">
                     <textarea id="userInput" placeholder="اكتب سؤالك هنا..." rows="2"></textarea>
                     <button id="sendBtn" class="send-btn">📤 إرسال</button>
                 </div>
                 <div class="settings-bar">
-                    <button id="settingsBtn" class="settings-btn">⚙️ إعدادات API</button>
                     <span id="subjectTag" class="subject-tag">الموضوع: الكل</span>
                 </div>
-            </div>
-        </div>
-
-        <div id="settingsModal" class="modal">
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <h3>⚙️ إعدادات API</h3>
-                <label for="apiKey">مفتاح API الخاص بك:</label>
-                <input type="password" id="apiKey" placeholder="أدخل مفتاح API">
-                <label for="apiType">نوع API:</label>
-                <select id="apiType">
-                    <option value="openai">OpenAI (ChatGPT)</option>
-                    <option value="gemini">Google Gemini</option>
-                </select>
-                <button id="saveApiBtn" class="save-btn">💾 حفظ الإعدادات</button>
-                <p class="api-note">💡 يمكنك الحصول على مفتاح من platform.openai.com أو makersuite.google.com</p>
             </div>
         </div>
     </div>
