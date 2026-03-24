@@ -1,55 +1,75 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Farm Bot Assistant</title>
+    <title>LMJO 09 - المساعد الذكي للمواد الوزارية</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="chat-container">
-        <header class="chat-header">
-            <div class="header-info">
-                <div class="bot-avatar">
-                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v4h-2zm0 6h2v2h-2z" fill="#10B981"/>
-                   </svg>
-                </div>
-                <div>
-                    <h1>FARM 8OT</h1>
-                    <p class="subtitle">Intelligent Agricultural Assistant</p>
-                </div>
-            </div>
-            <div class="online-indicator">
-                <span class="dot"></span> Online
-            </div>
+    <div class="container">
+        <header>
+            <h1>📚 LMJO 09</h1>
+            <p>المساعد الذكي للمواد الوزارية - التاريخ، الدين، الإنجليزية، العربية</p>
+            <p class="subtitle">📖 الفصل الأول والثاني | جميع الأسئلة الوزارية</p>
         </header>
 
-        <div class="chat-messages" id="chat-messages">
-            <div class="message bot-message">
-                <div class="message-content">
-                    Hello! I am the Farm Bot AI Assistant. I am here to answer any questions you have about Farm Bot, its features, and how it helps in modern agriculture. How can I assist you today? <br><br>
-                    مرحباً! أنا المساعد الذكي الخاص بـ Farm Bot. أنا هنا للإجابة على جميع أسئلتك حول Farm Bot، ميزاته، وكيف يساعد في الزراعة الحديثة. كيف يمكنني مساعدتك اليوم؟
+        <div class="subjects-bar">
+            <button class="subject-btn active" data-subject="all">📌 الكل</button>
+            <button class="subject-btn" data-subject="history">📜 التاريخ</button>
+            <button class="subject-btn" data-subject="religion">🕌 الدين</button>
+            <button class="subject-btn" data-subject="english">🇬🇧 الإنجليزية</button>
+            <button class="subject-btn" data-subject="arabic">📖 العربية</button>
+        </div>
+
+        <div class="chat-container">
+            <div class="chat-messages" id="chatMessages">
+                <div class="message bot">
+                    <div class="message-content">
+                        👋 مرحباً! أنا مساعد LMJO 09 المتخصص في المواد الوزارية.<br>
+                        أستطيع مساعدتك في:<br>
+                        • 📜 التاريخ (الفصل الأول والثاني)<br>
+                        • 🕌 الدين (الفصل الأول والثاني)<br>
+                        • 🇬🇧 الإنجليزية (القواعد والترجمة)<br>
+                        • 📖 العربية (النحو والأدب)<br><br>
+                        اسألني أي سؤال عن هذه المواد!
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-input-area">
+                <div class="api-key-warning" id="apiWarning">
+                    ⚠️ يرجى إدخال مفتاح API في الإعدادات أولاً
+                </div>
+                <div class="input-group">
+                    <textarea id="userInput" placeholder="اكتب سؤالك هنا..." rows="2"></textarea>
+                    <button id="sendBtn" class="send-btn">📤 إرسال</button>
+                </div>
+                <div class="settings-bar">
+                    <button id="settingsBtn" class="settings-btn">⚙️ إعدادات API</button>
+                    <span id="subjectTag" class="subject-tag">الموضوع: الكل</span>
                 </div>
             </div>
         </div>
 
-        <div class="typing-indicator hidden" id="typing-indicator">
-            Farm Bot is thinking<span>.</span><span>.</span><span>.</span>
+        <div id="settingsModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h3>⚙️ إعدادات API</h3>
+                <label for="apiKey">مفتاح API الخاص بك:</label>
+                <input type="password" id="apiKey" placeholder="أدخل مفتاح API">
+                <label for="apiType">نوع API:</label>
+                <select id="apiType">
+                    <option value="openai">OpenAI (ChatGPT)</option>
+                    <option value="gemini">Google Gemini</option>
+                </select>
+                <button id="saveApiBtn" class="save-btn">💾 حفظ الإعدادات</button>
+                <p class="api-note">💡 يمكنك الحصول على مفتاح من platform.openai.com أو makersuite.google.com</p>
+            </div>
         </div>
-
-        <form class="chat-input-area" id="chat-form">
-            <input type="text" id="user-input" placeholder="Ask about Farm Bot..." autocomplete="off" required>
-            <button type="submit" id="send-btn">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" fill="currentColor"/>
-                </svg>
-            </button>
-        </form>
     </div>
-    
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
     <script src="script.js"></script>
 </body>
 </html>
