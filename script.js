@@ -1,9 +1,12 @@
 // LMJO 09 - المساعد الذكي للمواد الوزارية
-// المفتاح مضمن مباشرة - لا يحتاج المستخدم لإدخاله
-const API_KEY = "AIzaSyDuqTXw956vY9TG7YwZyjH_r4pKiOvttJE";
-const API_TYPE = "gemini"; // استخدام Gemini API
+// نظام مزدوج: Gemini + OpenAI مع تحويل تلقائي
+
+// 🔑 المفاتيح الخاصة بك
+const GEMINI_API_KEY = "AIzaSyAI37J4XImXv4u9QFCcg3gVXug_7yqQs28";
+const OPENAI_API_KEY = "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";
 
 let currentSubject = 'all';
+let currentService = 'gemini'; // يبدأ بـ Gemini
 
 // تهيئة الصفحة
 document.addEventListener('DOMContentLoaded', () => {
@@ -73,18 +76,42 @@ async function sendMessage() {
     // عرض مؤشر الكتابة
     const typingId = showTypingIndicator();
     
+    // محاولة الإجابة من Gemini أولاً
+    let response = null;
+    let usedService = '';
+    
     try {
-        const response = await callGemini(message);
-        removeTypingIndicator(typingId);
-        addMessage(response, 'bot');
-    } catch (error) {
-        removeTypingIndicator(typingId);
-        addMessage('❌ عذراً، حدث خطأ: ' + error.message, 'bot');
+        // المحاولة الأولى: Gemini
+        addSystemMessage('🔄 جاري الاتصال بـ Gemini...', typingId);
+        response = await callGemini(message);
+        usedService = 'Gemini';
+    } catch (geminiError) {
+        console.log('Gemini failed:', geminiError);
+        addSystemMessage('⚠️ Gemini غير متاح، جاري التحويل إلى ChatGPT...', typingId);
+        
+        try {
+            // المحاولة الثانية: OpenAI
+            response = await callOpenAI(message);
+            usedService = 'ChatGPT';
+        } catch (openaiError) {
+            console.log('OpenAI failed:', openaiError);
+            removeTypingIndicator(typingId);
+            addMessage('❌ عذراً، كلا النظامين غير متاحين حالياً.\n\n🔧 يرجى المحاولة لاحقاً أو التحقق من الاتصال بالإنترنت.', 'bot');
+            return;
+        }
+    }
+    
+    removeTypingIndicator(typingId);
+    addMessage(response, 'bot');
+    
+    // إضافة ملاحظة صغيرة عن الخدمة المستخدمة (اختيارية)
+    if (usedService === 'ChatGPT') {
+        addSystemMessage(`✨ تمت الإجابة عبر ${usedService}`, null);
     }
 }
 
 async function callGemini(message) {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${API_KEY}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
     
     const response = await fetch(url, {
         method: 'POST',
@@ -102,11 +129,38 @@ async function callGemini(message) {
     
     if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error?.message || 'خطأ في الاتصال');
+        throw new Error(errorData.error?.message || 'خطأ في Gemini');
     }
     
     const data = await response.json();
     return data.candidates[0].content.parts[0].text;
+}
+
+async function callOpenAI(message) {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${OPENAI_API_KEY}`
+        },
+        body: JSON.stringify({
+            model: 'gpt-3.5-turbo',
+            messages: [
+                { role: 'system', content: getSystemPrompt() },
+                { role: 'user', content: message }
+            ],
+            temperature: 0.7,
+            max_tokens: 1000
+        })
+    });
+    
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error?.message || 'خطأ في OpenAI');
+    }
+    
+    const data = await response.json();
+    return data.choices[0].message.content;
 }
 
 function addMessage(text, sender) {
@@ -116,6 +170,32 @@ function addMessage(text, sender) {
     messageDiv.innerHTML = `<div class="message-content">${formatText(text)}</div>`;
     messagesContainer.appendChild(messageDiv);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+function addSystemMessage(text, typingId) {
+    // إذا كان هناك مؤشر كتابة، نضيف الرسالة النظامية في مكانه
+    if (typingId) {
+        const typingElement = document.getElementById(typingId);
+        if (typingElement) {
+            const contentDiv = typingElement.querySelector('.message-content');
+            if (contentDiv) {
+                contentDiv.innerHTML = `<span class="system-message">${text}</span>`;
+            }
+        }
+    } else {
+        // رسالة نظامية منفصلة
+        const messagesContainer = document.getElementById('chatMessages');
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'message system';
+        msgDiv.innerHTML = `<div class="message-content system-message">${text}</div>`;
+        messagesContainer.appendChild(msgDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        
+        // إخفاء الرسالة بعد 3 ثواني
+        setTimeout(() => {
+            msgDiv.remove();
+        }, 3000);
+    }
 }
 
 function formatText(text) {
@@ -128,7 +208,7 @@ function showTypingIndicator() {
     const typingDiv = document.createElement('div');
     typingDiv.id = id;
     typingDiv.className = 'message bot';
-    typingDiv.innerHTML = '<div class="message-content"><span class="typing-dots">⏳ جاري الكتابة...</span></div>';
+    typingDiv.innerHTML = '<div class="message-content"><span class="typing-dots">⏳ جاري التفكير...</span></div>';
     messagesContainer.appendChild(typingDiv);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
     return id;
@@ -139,12 +219,25 @@ function removeTypingIndicator(id) {
     if (element) element.remove();
 }
 
-// إضافة CSS للـ typing indicator
+// إضافة CSS للأنماط الجديدة
 const style = document.createElement('style');
 style.textContent = `
     .typing-dots {
         color: #6c757d;
         font-style: italic;
+    }
+    .system-message {
+        color: #ff8c00;
+        font-size: 0.85rem;
+        font-style: italic;
+        text-align: center;
+        display: block;
+    }
+    .message.system .message-content {
+        background: transparent;
+        text-align: center;
+        padding: 5px;
+        box-shadow: none;
     }
 `;
 document.head.appendChild(style);
