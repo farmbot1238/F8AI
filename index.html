@@ -3,53 +3,178 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LMJO 09 - المساعد الذكي للمواد الوزارية</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>Farm Bot | المساعد الزراعي الذكي</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-green: #2ecc71;
+            --dark-green: #27ae60;
+            --tech-gray: #2c3e50;
+            --white: #ffffff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tajawal', sans-serif; }
+        body { background-color: #f4f7f6; color: var(--tech-gray); scroll-behavior: smooth; }
+
+        /* Navigation */
+        nav {
+            background: var(--white); padding: 1rem 5%; display: flex; justify-content: space-between;
+            align-items: center; position: fixed; width: 100%; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .logo { font-size: 1.5rem; font-weight: bold; color: var(--dark-green); }
+
+        /* Hero Section */
+        .hero {
+            height: 80vh; background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), 
+            url('https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1350&q=80') center/cover;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: white; padding: 0 20px;
+        }
+        .hero h1 { font-size: 3rem; margin-bottom: 20px; }
+
+        /* Chat Widget Styles */
+        #chat-container {
+            position: fixed; bottom: 20px; right: 20px; width: 350px; max-width: 90vw;
+            background: white; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            display: flex; flex-direction: column; overflow: hidden; z-index: 2000;
+            border: 2px solid var(--primary-green);
+        }
+        #chat-header {
+            background: var(--primary-green); color: white; padding: 15px;
+            font-weight: bold; display: flex; align-items: center; gap: 10px;
+        }
+        #chat-messages {
+            height: 300px; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px;
+            background: #f9f9f9;
+        }
+        .message { padding: 10px 15px; border-radius: 10px; max-width: 80%; font-size: 0.9rem; }
+        .user-msg { background: var(--primary-green); color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
+        .bot-msg { background: #e0e0e0; color: var(--tech-gray); align-self: flex-start; border-bottom-left-radius: 2px; }
+        
+        #chat-input-area { display: flex; border-top: 1px solid #ddd; padding: 10px; background: white; }
+        #user-input { flex: 1; border: none; outline: none; padding: 5px; font-size: 0.9rem; }
+        #send-btn { background: none; border: none; color: var(--primary-green); cursor: pointer; font-size: 1.2rem; }
+
+        /* Sections */
+        .section { padding: 60px 10%; text-align: center; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 30px; }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .card i { font-size: 2.5rem; color: var(--primary-green); margin-bottom: 15px; }
+
+        footer { background: #1a1a1a; color: white; padding: 30px; text-align: center; margin-top: 50px; }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>📚 LMJO 09</h1>
-            <p>المساعد الذكي للمواد الوزارية - التاريخ، الدين، الإنجليزية، العربية</p>
-            <p class="subtitle">📖 الفصل الأول والثاني | جميع الأسئلة الوزارية</p>
-        </header>
 
-        <div class="subjects-bar">
-            <button class="subject-btn active" data-subject="all">📌 الكل</button>
-            <button class="subject-btn" data-subject="history">📜 التاريخ</button>
-            <button class="subject-btn" data-subject="religion">🕌 الدين</button>
-            <button class="subject-btn" data-subject="english">🇬🇧 الإنجليزية</button>
-            <button class="subject-btn" data-subject="arabic">📖 العربية</button>
+    <nav>
+        <div class="logo"><i class="fas fa-robot"></i> Farm Bot</div>
+    </nav>
+
+    <section class="hero">
+        <h1>مرحباً بك في عصر الزراعة الذكية</h1>
+        <p>أنا Farm Bot، مساعدك الآلي المدعوم بالذكاء الاصطناعي وتكنولوجيا ناسا.</p>
+        <a href="#features" style="margin-top: 20px; color: white; text-decoration: none; border: 1px solid white; padding: 10px 20px; border-radius: 25px;">اكتشف المزيد</a>
+    </section>
+
+    <section id="features" class="section">
+        <h2>قدرات Farm Bot</h2>
+        <div class="grid">
+            <div class="card">
+                <i class="fas fa-satellite"></i>
+                <h3>تصميم NASA</h3>
+                <p>هيكل متطور يتحمل التضاريس الصعبة والقاسية.</p>
+            </div>
+            <div class="card">
+                <i class="fas fa-wave-square"></i>
+                <h3>تلقيح صوتي</h3>
+                <p>زيادة الإنتاج باستخدام موجات صوتية مبتكرة.</p>
+            </div>
+            <div class="card">
+                <i class="fas fa-microchip"></i>
+                <h3>تحليل AI</h3>
+                <p>مراقبة لحظية لصحة النباتات والتربة.</p>
+            </div>
         </div>
+    </section>
 
-        <div class="chat-container">
-            <div class="chat-messages" id="chatMessages">
-                <div class="message bot">
-                    <div class="message-content">
-                        👋 مرحباً! أنا مساعد LMJO 09 المتخصص في المواد الوزارية.<br>
-                        أستطيع مساعدتك في:<br>
-                        • 📜 التاريخ (الفصل الأول والثاني)<br>
-                        • 🕌 الدين (الفصل الأول والثاني)<br>
-                        • 🇬🇧 الإنجليزية (القواعد والترجمة)<br>
-                        • 📖 العربية (النحو والأدب)<br><br>
-                        اسألني أي سؤال عن هذه المواد!
-                    </div>
-                </div>
-            </div>
-
-            <div class="chat-input-area">
-                <div class="input-group">
-                    <textarea id="userInput" placeholder="اكتب سؤالك هنا..." rows="2"></textarea>
-                    <button id="sendBtn" class="send-btn">📤 إرسال</button>
-                </div>
-                <div class="settings-bar">
-                    <span id="subjectTag" class="subject-tag">الموضوع: الكل</span>
-                </div>
-            </div>
+    <!-- Floating Chat Widget -->
+    <div id="chat-container">
+        <div id="chat-header">
+            <i class="fas fa-robot"></i>
+            <span>تحدث مع Farm Bot AI</span>
+        </div>
+        <div id="chat-messages">
+            <div class="message bot-msg">أهلاً بك! أنا Farm Bot. كيف يمكنني مساعدتك في مزرعتك اليوم؟</div>
+        </div>
+        <div id="chat-input-area">
+            <input type="text" id="user-input" placeholder="اسألني عن محاصيلك أو تقنياتي..." onkeypress="handleKeyPress(event)">
+            <button id="send-btn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <footer>
+        <p>مشروع Farm Bot &copy; 2024 - مدعوم بالذكاء الاصطناعي</p>
+    </footer>
+
+    <script>
+        // الإعدادات: مفتاح الـ API الخاص بك
+        const API_KEY = "AIzaSyCsOU34G08mgjZUBmT_L5Rw1ZYmfocq-zs";
+        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+
+        async function sendMessage() {
+            const inputField = document.getElementById('user-input');
+            const messageText = inputField.value.trim();
+            
+            if (messageText === "") return;
+
+            // إضافة رسالة المستخدم للواجهة
+            appendMessage(messageText, 'user-msg');
+            inputField.value = "";
+
+            // إظهار مؤشر الانتظار
+            const loadingMsg = appendMessage("جاري التفكير...", 'bot-msg');
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: `أنت الآن Farm Bot، روبوت زراعي ذكي. 
+                                خلفيتك: مستوحى من مركبات ناسا، تستخدم الموجات الصوتية للتلقيح، وتراقب المحاصيل بالذكاء الاصطناعي.
+                                أجب بأسلوب تقني ومساعد وباللغة العربية على هذا السؤال: ${messageText}`
+                            }]
+                        }]
+                    })
+                });
+
+                const data = await response.json();
+                const aiResponse = data.candidates[0].content.parts[0].text;
+                
+                // تحديث رسالة الانتظار برد الذكاء الاصطناعي
+                loadingMsg.innerText = aiResponse;
+
+            } catch (error) {
+                loadingMsg.innerText = "عذراً، حدث خطأ في الاتصال. تأكد من صلاحية المفتاح.";
+                console.error(error);
+            }
+        }
+
+        function appendMessage(text, className) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${className}`;
+            msgDiv.innerText = text;
+            const container = document.getElementById('chat-messages');
+            container.appendChild(msgDiv);
+            container.scrollTop = container.scrollHeight;
+            return msgDiv;
+        }
+
+        function handleKeyPress(e) {
+            if (e.key === 'Enter') sendMessage();
+        }
+    </script>
 </body>
 </html>
